@@ -1,0 +1,286 @@
+Sub Main()
+    Dim ws As Worksheet
+    Set ws = ActiveSheet
+
+    ' Write "Money Out" and "Money In"
+    ws.Range("J2").Value = "Money Out"
+    ws.Range("J3").Value = "Money In"
+    
+    ' Calculate totalF (Column F) and handle special cases
+    Dim totalF As Double
+    totalF = 0
+    Dim i As Long
+    For i = 2 To 100
+        totalF = totalF + ws.Range("F" & i).Value
+        If InStr(ws.Range("E" & i).Value, "CLUB LLOYDS MONTHL") > 0 Or _
+           InStr(ws.Range("E" & i).Value, "MONTHLY SAVER") > 0 Or _
+           InStr(ws.Range("E" & i).Value, "HELP TO BUY ISA") > 0 Then
+            totalF = totalF - ws.Range("F" & i).Value
+        End If
+    Next i
+    ws.Range("K2").Value = totalF
+    
+    ' Calculate totalG (Column G)
+    Dim totalG As Double
+    totalG = 0
+    For i = 2 To 100
+        totalG = totalG + ws.Range("G" & i).Value
+    Next i
+    ws.Range("K3").Value = totalG
+    
+    ' Write values to N2:N7
+    ws.Range("N2").Value = "Total"
+    ws.Range("N3").Value = "Supermarket"
+    ws.Range("N4").Value = "Foodout"
+    ws.Range("N5").Value = "Travel"
+    ws.Range("N6").Value = "Utility+House"
+    ws.Range("N7").Value = "Save"
+    
+    ' Calculate total for F2:F100 and place in O2
+    Dim totalF2toF100 As Double
+    totalF2toF100 = WorksheetFunction.Sum(ws.Range("F2:F100"))
+    ws.Range("O2").Value = totalF2toF100
+    
+    ' Write "Pure Earning" and calculate K3 - K2
+    ws.Range("J4").Value = "Pure Earning"
+    ws.Range("K4").Value = ws.Range("K3").Value - ws.Range("K2").Value
+
+    ' Define keywords and initialize totals
+    Dim keywords1 As Variant, keywords2 As Variant, keywords3 As Variant, keywords4 As Variant, keywords5 As Variant
+    keywords1 = Array("CLUB LLOYDS MONTHL", "MONTHLY SAVER", "HELP TO BUY ISA", "SAVETHECHANGE")
+    keywords2 = Array("TESCO", "SAINSBURY'S FOOD", "COSTCUTTER", "TIAN TIAN", "PREMIER", "ARGOS", "DAN", "MORRISONS")
+    keywords3 = Array("KFC", "BURGERKING", "JINGDA CHEN", "FOOD ORDER")
+    keywords4 = Array("SAINSBURY'S PETROL", "MARSHMALLOW", "TRAINLINE", "OXFORD BUS")
+    keywords5 = Array("EE TOPUP VESTA", "VOWH DISTRICT COUN", "CHANCELLORS GP OF", "BT GROUP PLC", "PEIJUN TANG", "TONGYUE WANG", "giffgaff", "CLUB LLOYDS FEE", "CO-OPERATIVE")
+    
+    Dim totalF1 As Double, totalF2 As Double, totalF3 As Double, totalF4 As Double, totalF5 As Double
+    totalF1 = 0: totalF2 = 0: totalF3 = 0: totalF4 = 0: totalF5 = 0
+    Dim matchCount1 As Long, matchCount2 As Long, matchCount3 As Long, matchCount4 As Long, matchCount5 As Long
+    matchCount1 = 0: matchCount2 = 0: matchCount3 = 0: matchCount4 = 0: matchCount5 = 0
+    
+    Dim matchedCells1 As String, matchedCells2 As String, matchedCells3 As String, matchedCells4 As String, matchedCells5 As String
+    matchedCells1 = "": matchedCells2 = "": matchedCells3 = "": matchedCells4 = "": matchedCells5 = ""
+
+    ' Loop through E2:E100 and match keywords
+    For i = 2 To 100
+        Dim eValue As String
+        eValue = ws.Range("E" & i).Value
+        Dim fValue As Double
+        fValue = ws.Range("F" & i).Value
+        
+        If IsInArray(eValue, keywords1) Then
+            totalF1 = totalF1 + fValue
+            matchCount1 = matchCount1 + 1
+            matchedCells1 = matchedCells1 & "E" & i & ", "
+        End If
+        
+        If IsInArray(eValue, keywords2) Then
+            totalF2 = totalF2 + fValue
+            matchCount2 = matchCount2 + 1
+            matchedCells2 = matchedCells2 & "E" & i & ", "
+        End If
+        
+        If IsInArray(eValue, keywords3) Then
+            totalF3 = totalF3 + fValue
+            matchCount3 = matchCount3 + 1
+            matchedCells3 = matchedCells3 & "E" & i & ", "
+        End If
+        
+        If IsInArray(eValue, keywords4) Then
+            totalF4 = totalF4 + fValue
+            matchCount4 = matchCount4 + 1
+            matchedCells4 = matchedCells4 & "E" & i & ", "
+        End If
+        
+        If IsInArray(eValue, keywords5) Then
+            totalF5 = totalF5 + fValue
+            matchCount5 = matchCount5 + 1
+            matchedCells5 = matchedCells5 & "E" & i & ", "
+        End If
+    Next i
+    
+    ' Place totals and counts in respective cells
+    ws.Range("O7").Value = totalF1
+    ws.Range("P7").Value = matchCount1
+    If Len(matchedCells1) > 0 Then matchedCells1 = Left(matchedCells1, Len(matchedCells1) - 2)
+    ws.Range("Q7").Value = matchedCells1
+    
+    ws.Range("O3").Value = totalF2
+    ws.Range("P3").Value = matchCount2
+    If Len(matchedCells2) > 0 Then matchedCells2 = Left(matchedCells2, Len(matchedCells2) - 2)
+    ws.Range("Q3").Value = matchedCells2
+    
+    ws.Range("O4").Value = totalF3
+    ws.Range("P4").Value = matchCount3
+    If Len(matchedCells3) > 0 Then matchedCells3 = Left(matchedCells3, Len(matchedCells3) - 2)
+    ws.Range("Q4").Value = matchedCells3
+    
+    ws.Range("O5").Value = totalF4
+    ws.Range("P5").Value = matchCount4
+    If Len(matchedCells4) > 0 Then matchedCells4 = Left(matchedCells4, Len(matchedCells4) - 2)
+    ws.Range("Q5").Value = matchedCells4
+    
+    ws.Range("O6").Value = totalF5
+    ws.Range("P6").Value = matchCount5
+    If Len(matchedCells5) > 0 Then matchedCells5 = Left(matchedCells5, Len(matchedCells5) - 2)
+    ws.Range("Q6").Value = matchedCells5
+    
+     ' 在O8写O3到O7的总和
+    ws.Range("O8").Value = Application.WorksheetFunction.Sum(ws.Range("O3:O7"))
+
+    ' 在O9写O2 - O8的结果
+    ws.Range("O9").Value = ws.Range("O2").Value - ws.Range("O8").Value
+    
+End Sub
+
+' Utility function to check if value is in array
+Function IsInArray(val As String, arr As Variant) As Boolean
+    Dim element As Variant
+    For Each element In arr
+        If InStr(val, element) > 0 Then
+            IsInArray = True
+            Exit Function
+        End If
+    Next element
+    IsInArray = False
+End Function
+
+Sub CreatePieChart()
+    Dim ws As Worksheet
+    Dim chartObj As ChartObject
+    Dim chart As chart
+    
+    ' 获取当前工作表
+    Set ws = ActiveSheet
+
+    ' 在工作表中插入一个图表对象
+    Set chartObj = ws.ChartObjects.Add(Left:=300, Width:=375, Top:=50, Height:=225)
+    Set chart = chartObj.chart
+    
+    ' 设置图表类型为2D饼状图
+    chart.ChartType = xlPie
+    
+    ' 设置图表的数据来源
+    chart.SetSourceData Source:=ws.Range("N3:N7,O3:O7")
+
+    ' 设置标签（Axis Labels）为N3到N7
+    chart.SeriesCollection(1).XValues = ws.Range("N3:N7")
+
+    ' 设置Series Values（值为O3到O7）
+    chart.SeriesCollection(1).Values = ws.Range("O3:O7")
+
+    ' 设置饼图的标题
+    chart.HasTitle = True
+    chart.ChartTitle.Text = "Expenses"
+
+    ' 添加数据标签，显示类别名称和百分比
+    chart.ApplyDataLabels xlDataLabelsShowLabelAndPercent
+End Sub
+
+
+Sub MergeCellsAndInsertTextAndCalculations()
+    '合并N1到Q1，并写入"Expenses"
+    Range("N1:Q1").Merge
+    Range("N1:Q1").HorizontalAlignment = xlCenter
+    Range("N1:Q1").Value = "Expenses"
+    
+    '合并T1到W1，并写入"Income"
+    Range("T1:W1").Merge
+    Range("T1:W1").HorizontalAlignment = xlCenter
+    Range("T1:W1").Value = "Income"
+    
+    '在T2到T6中写入相应的文本
+    Range("T2").Value = "Total"
+    Range("T3").Value = "Salary"
+    Range("T4").Value = "Investment Income"
+    Range("T5").Value = "Part-time Job Income"
+    Range("T6").Value = "Refund"
+    Range("T7").Value = "Interest"
+    
+    '在U2中计算G2到G100的总和
+    Range("U2").Formula = "=SUM(G2:G100)"
+    
+End Sub
+
+Sub SumUKAEACulhamValues()
+    Dim i As Integer
+    Dim totalSum As Double
+    totalSum = 0
+    
+    'Loop through column E from row 2 to 100
+    For i = 2 To 100
+        'Check if column E contains the keyword "UKAEA CULHAM"
+        If InStr(1, Cells(i, 5).Value, "UKAEA CULHAM", vbTextCompare) > 0 Then
+            'If a match is found, add the corresponding value in column G to the total sum
+            totalSum = totalSum + Cells(i, 7).Value
+        End If
+    Next i
+    
+    'Write the total sum into cell U3
+    Range("U3").Value = totalSum
+End Sub
+
+Sub SumArgosAndClubLloydsValues()
+    Dim i As Integer
+    Dim totalSum As Double
+    totalSum = 0
+    
+    'Loop through column E from row 2 to 100
+    For i = 2 To 100
+        'Check if column E contains the keyword "ARGOS" or "CLUB LLOYDS WAIVED"
+        If InStr(1, Cells(i, 5).Value, "ARGOS", vbTextCompare) > 0 Or InStr(1, Cells(i, 5).Value, "CLUB LLOYDS WAIVED", vbTextCompare) > 0 Then
+            'If a match is found, add the corresponding value in column G to the total sum
+            totalSum = totalSum + Cells(i, 7).Value
+        End If
+    Next i
+    
+    'Write the total sum into cell U3
+    Range("U6").Value = totalSum
+End Sub
+
+
+Sub SumInterestValues()
+    Dim i As Integer
+    Dim totalSum As Double
+    totalSum = 0
+    
+    'Loop through column E from row 2 to 100
+    For i = 2 To 100
+        'Check if column E contains the keyword "INTEREST"
+        If InStr(1, Cells(i, 5).Value, "INTEREST", vbTextCompare) > 0 Then
+            'If a match is found, add the corresponding value in column G to the total sum
+            totalSum = totalSum + Cells(i, 7).Value
+        End If
+    Next i
+    
+    'Write the total sum into cell U8
+    Range("U7").Value = totalSum
+    
+    Range("U8").Formula = "=SUM(U3:U7)"
+End Sub
+
+Sub InsertDoughnutChart()
+    Dim chartObj As ChartObject
+    Dim chart As chart
+    
+    '在当前工作表中插入一个图表
+    Set chartObj = ActiveSheet.ChartObjects.Add(Left:=Range("T11").Left, Top:=Range("T11").Top, Width:=540, Height:=310)
+    
+    '设置图表类型为Doughnut（圆环图）
+    Set chart = chartObj.chart
+    chart.ChartType = xlDoughnut
+    
+    '设置数据源为U3:U7，标签为T3:T7
+    chart.SetSourceData Source:=Range("U3:U7")
+    chart.SeriesCollection(1).XValues = Range("T3:T7")
+    
+    '设置图表标题
+    chart.HasTitle = True
+    chart.ChartTitle.Text = "Income"
+    
+    '设置图表的大小：高度8.2cm，宽度14.27cm
+    chartObj.Height = 8.2 * 28.3465  ' 将厘米转换为点
+    chartObj.Width = 14.27 * 28.3465 ' 将厘米转换为点
+    chart.ApplyDataLabels xlDataLabelsShowLabelAndPercent
+End Sub
+
